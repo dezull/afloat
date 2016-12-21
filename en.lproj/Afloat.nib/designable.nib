@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4510" systemVersion="13A598" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment version="1050" defaultVersion="1080" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4510"/>
+        <deployment version="1050" identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Afloat">
@@ -11,13 +11,19 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <menu id="1">
             <items>
                 <menuItem title="Keep Afloat" keyEquivalent="a" id="2">
                     <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                     <connections>
                         <action selector="toggleAlwaysOnTop:" target="-2" id="13"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Sticky" keyEquivalent="A" id="Xyu-7v-0cr">
+                    <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                    <connections>
+                        <action selector="toggleSticky:" target="-2" id="FZp-SM-eY9"/>
                     </connections>
                 </menuItem>
                 <menuItem title="Transparency" id="5">
@@ -79,6 +85,7 @@
                     </connections>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="131.5" y="165.5"/>
         </menu>
     </objects>
 </document>

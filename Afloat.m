@@ -89,6 +89,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	NSMenu* menu = [NSApp windowsMenu];
 	if (!menu) {
 		L0Log(@"%@ found no Window menu in NSApp %@", self, NSApp);
+		[self performSelector:@selector(install) withObject:nil afterDelay:5.0];
+
 		return;
 	}
 	
@@ -174,6 +176,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		[self setKeptAfloat:![self isWindowKeptAfloat:c] forWindow:c showBadgeAnimation:YES];
 }
 
+- (IBAction)toggleSticky:(id)sender {
+    NSWindow* c = [self currentWindow];
+    if (c)
+        [self setOnAllSpaces:![self isWindowOnAllSpaces:c] forWindow:c showBadgeAnimation:YES];
+}
+
 - (BOOL) validateMenuItem:(NSMenuItem*) item {
 	if ([item action] == @selector(toggleAlwaysOnTop:)) {
 		NSWindow* c = [self currentWindow];
@@ -182,7 +190,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 		else
 			[item setState:[self isWindowKeptAfloat:c]? NSOnState : NSOffState];
 		return c != nil;
-	} else if ([item action] == @selector(showWindowFileInFinder:))
+    } else if ([item action] == @selector(toggleSticky:)) {
+        NSWindow* c = [self currentWindow];
+        if (!c)
+            [item setState:NSOffState];
+        else
+            [item setState:[self isWindowOnAllSpaces:c]? NSOnState : NSOffState];
+        return c != nil;
+    } else if ([item action] == @selector(showWindowFileInFinder:))
 		return [[self currentWindow] representedURL]? [[[self currentWindow] representedURL] isFileURL] : NO;
     else if ([item action] == @selector(toggleFocusFollowsMouse:))
         [item setState:[[AfloatStorage globalValueForKey:@"FocusFollowsMouse"] boolValue] ? NSOnState : NSOffState];
@@ -217,6 +232,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 	
 	if (!afloat && [self isWindowOverlay:c] && !_settingOverlay)
 		[self setOverlay:NO forWindow:c animated:animated showBadgeAnimation:NO];
+}
+
+- (void) setOnAllSpaces:(BOOL) spaces forWindow:(NSWindow*) c showBadgeAnimation:(BOOL) animated {
+    if ([c collectionBehavior] != NSWindowCollectionBehaviorCanJoinAllSpaces && spaces) {
+        [AfloatStorage setSharedValue:[NSNumber numberWithUnsignedInteger:[c collectionBehavior]]
+                               window:c key:kAfloatLastSpacesSettingKey];
+        [c setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
+        L0LogS(@"Starting begin sticking animation...");
+        [[AfloatBadgeController badgeControllerForWindow:c] animateWithBadgeType:AfloatBadgeDidBeginKeepingAfloat];
+    } else {
+        NSNumber* n = [AfloatStorage sharedValueForWindow:c key:kAfloatLastSpacesSettingKey];
+        NSUInteger setting = NSWindowCollectionBehaviorDefault;
+        if (c)
+            setting = [n unsignedIntegerValue];
+        
+        [c setCollectionBehavior:setting];
+        [AfloatStorage removeSharedValueForWindow:c key:kAfloatLastSpacesSettingKey];
+        L0LogS(@"Starting begin unsticking animation...");
+        [[AfloatBadgeController badgeControllerForWindow:c] animateWithBadgeType:AfloatBadgeDidEndKeepingAfloat];
+    }
 }
 
 - (void) setOnAllSpaces:(BOOL) spaces forWindow:(NSWindow*) c {
